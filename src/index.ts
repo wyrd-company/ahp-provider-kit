@@ -37,6 +37,8 @@ export interface ActiveClientToolSink {
   reportInvocation(invocation: ActiveClientToolInvocation): Promise<ToolCallResult>;
 }
 
+export type ProviderResumeState = Readonly<Record<string, unknown>>;
+
 export interface AgentSessionContext {
   readonly sessionUri: URI;
   readonly providerId: string;
@@ -50,11 +52,13 @@ export interface AgentSessionContext {
 
 export interface ResumableAgentSessionContext extends AgentSessionContext {
   readonly state: SessionState;
+  readonly resumeState?: ProviderResumeState;
 }
 
 export interface AgentSession {
   sendUserMessage(message: Message, sink: AgentTurnSink, signal: AbortSignal, turnId?: string): Promise<void>;
   setActiveClientTools?(activeClientTools: ActiveClientTools | undefined): Promise<void> | void;
+  getResumeState?(): Promise<ProviderResumeState | undefined> | ProviderResumeState | undefined;
   cancel?(reason?: string): Promise<void> | void;
   dispose?(): Promise<void> | void;
 }

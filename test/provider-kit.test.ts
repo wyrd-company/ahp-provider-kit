@@ -6,6 +6,7 @@ import type { StateAction, ToolCallResult, ToolResultContent } from '@microsoft/
 import {
   ActiveClientToolRouter,
   MarkdownTurnEmitter,
+  type ProviderResumeState,
   resolveModelId,
   singleModelAgentInfo,
   uriToPath,
@@ -104,7 +105,8 @@ test('routes active-client tool invocations with inferred display names', async 
   });
 });
 
-test('defines a resumable provider contract with persisted session state', () => {
+test('defines a resumable provider contract with persisted AHP and provider-native session state', async () => {
+  const resumeState: ProviderResumeState = { nativeSessionId: 'native-session-1' };
   const provider: ResumableAgentProvider = {
     agent: singleModelAgentInfo({
       providerId: 'resumable',
@@ -120,11 +122,39 @@ test('defines a resumable provider contract with persisted session state', () =>
     resumeSession(context) {
       assert.equal(context.state.summary.resource, context.sessionUri);
       assert.equal(context.state.summary.provider, context.providerId);
+      assert.equal(context.resumeState?.nativeSessionId, 'native-session-1');
       return {
         async sendUserMessage() {},
+        getResumeState() {
+          return resumeState;
+        },
       };
     },
   };
 
+  const resumed = provider.resumeSession({
+    sessionUri: 'ahp-session:/resumable',
+    providerId: 'resumable',
+    activeClientToolSink: {
+      async reportInvocation() {
+        throw new Error('not used');
+      },
+    },
+    state: {
+      summary: {
+        resource: 'ahp-session:/resumable',
+        provider: 'resumable',
+        title: 'Resumable',
+        status: 1,
+        createdAt: 1,
+        modifiedAt: 1,
+      },
+      lifecycle: 'ready' as never,
+      turns: [],
+    },
+    resumeState,
+  });
+
   assert.equal(provider.agent.provider, 'resumable');
+  assert.deepEqual((await resumed).getResumeState?.(), resumeState);
 });
