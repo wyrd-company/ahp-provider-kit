@@ -10,6 +10,7 @@ import {
   singleModelAgentInfo,
   uriToPath,
   type ActiveClientToolInvocation,
+  type ResumableAgentProvider,
 } from '../src/index.js';
 
 test('builds single-model agent metadata', () => {
@@ -101,4 +102,29 @@ test('routes active-client tool invocations with inferred display names', async 
     invocationMessage: 'Search Workspace',
     toolInput: undefined,
   });
+});
+
+test('defines a resumable provider contract with persisted session state', () => {
+  const provider: ResumableAgentProvider = {
+    agent: singleModelAgentInfo({
+      providerId: 'resumable',
+      displayName: 'Resumable',
+      description: 'Resumable test provider',
+      defaultModel: 'test-model',
+    }),
+    createSession() {
+      return {
+        async sendUserMessage() {},
+      };
+    },
+    resumeSession(context) {
+      assert.equal(context.state.summary.resource, context.sessionUri);
+      assert.equal(context.state.summary.provider, context.providerId);
+      return {
+        async sendUserMessage() {},
+      };
+    },
+  };
+
+  assert.equal(provider.agent.provider, 'resumable');
 });

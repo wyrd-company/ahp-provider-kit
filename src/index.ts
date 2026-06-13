@@ -5,6 +5,7 @@ import type {
   Message,
   ModelSelection,
   SessionConfigSchema,
+  SessionState,
   StateAction,
   StringOrMarkdown,
   ToolCallResult,
@@ -47,6 +48,10 @@ export interface AgentSessionContext {
   readonly activeClientToolSink: ActiveClientToolSink;
 }
 
+export interface ResumableAgentSessionContext extends AgentSessionContext {
+  readonly state: SessionState;
+}
+
 export interface AgentSession {
   sendUserMessage(message: Message, sink: AgentTurnSink, signal: AbortSignal, turnId?: string): Promise<void>;
   setActiveClientTools?(activeClientTools: ActiveClientTools | undefined): Promise<void> | void;
@@ -62,6 +67,10 @@ export interface AgentProvider {
   }): Promise<{ schema: SessionConfigSchema; values: Record<string, unknown> }> |
     { schema: SessionConfigSchema; values: Record<string, unknown> };
   createSession(context: AgentSessionContext): Promise<AgentSession> | AgentSession;
+}
+
+export interface ResumableAgentProvider extends AgentProvider {
+  resumeSession(context: ResumableAgentSessionContext): Promise<AgentSession> | AgentSession;
 }
 
 export interface SingleModelAgentInfoOptions {
