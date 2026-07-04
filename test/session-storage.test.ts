@@ -64,13 +64,24 @@ test('resolveSessionStorageDir encodes hostile session URIs into one safe segmen
   assert.ok(resolved?.startsWith(root));
   const segment = resolved?.slice(root.length);
 
-  assert.match(segment ?? '', /^[A-Za-z0-9._%-]+$/);
+  assert.match(segment ?? '', /^[A-Za-z0-9._-]+$/);
+  assert.doesNotMatch(segment ?? '', /%/);
   assert.doesNotMatch(segment ?? '', /\//);
   assert.doesNotMatch(segment ?? '', /\\/);
   assert.doesNotMatch(segment ?? '', /\s/);
   assert.notEqual(segment, '.');
   assert.notEqual(segment, '..');
-  assert.ok(segment?.includes('%2F..%2Fspaces%20and%20%25%20signs%2Funicode-'));
+  assert.ok(segment?.includes('_2F.._2Fspaces_20and_20_25_20signs_2Funicode-'));
+});
+
+test('resolveSessionStorageDir static file roots survive fileURLToPath round-trips', async () => {
+  const { fileURLToPath } = await import('node:url');
+  const resolved = resolveSessionStorageDir('file:///sessions/root', context('ahp-session:/one'));
+
+  assert.ok(resolved);
+  const path = fileURLToPath(resolved);
+  assert.ok(path.startsWith('/sessions/root/session-'));
+  assert.doesNotMatch(path.slice('/sessions/root/'.length), /\//);
 });
 
 test('resolveSessionStorageDir keeps special dot session URIs under the static root', () => {

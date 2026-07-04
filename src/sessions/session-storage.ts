@@ -46,6 +46,11 @@ function sessionUriPathSegment(sessionUri: URI): string {
   return `session-${encodeUriPathSegment(sessionUri)}`;
 }
 
+// Escapes with `_HH` rather than percent-encoding: the resolved value is a URI,
+// so `%HH` would read as percent-encoded characters and be decoded (or rejected,
+// e.g. by fileURLToPath for %2F) by conformant URI consumers. `_` never passes
+// through unescaped, so the encoding stays injective and the output alphabet is
+// URI-unreserved end to end.
 function encodeUriPathSegment(value: string): string {
   let encoded = '';
 
@@ -53,12 +58,12 @@ function encodeUriPathSegment(value: string): string {
     const character = String.fromCharCode(byte);
     encoded += isSafePathSegmentCharacter(character)
       ? character
-      : `%${byte.toString(16).toUpperCase().padStart(2, '0')}`;
+      : `_${byte.toString(16).toUpperCase().padStart(2, '0')}`;
   }
 
   return encoded;
 }
 
 function isSafePathSegmentCharacter(character: string): boolean {
-  return /^[A-Za-z0-9._-]$/.test(character);
+  return /^[A-Za-z0-9.-]$/.test(character);
 }
