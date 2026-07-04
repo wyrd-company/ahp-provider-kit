@@ -5,3 +5,5 @@ export * from './resumable-agent-session-context.js';
 export * from './agent-session.js';
 export * from './agent-provider.js';
 export * from './resumable-agent-provider.js';
+export * from './session-storage.js';
+export * from './resolve-session-storage-dir.js';
