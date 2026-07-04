@@ -1,5 +1,10 @@
 import { fileURLToPath } from 'node:url';
 
+export {
+  resolveSessionStorageDir,
+  type SessionStorage,
+} from './sessions/session-storage.js';
+
 import type {
   AgentInfo,
   Message,

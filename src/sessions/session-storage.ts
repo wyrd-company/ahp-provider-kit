@@ -17,6 +17,9 @@ import type { AgentSessionContext } from '../index.js';
  * Precedence: an adapter's explicit store/dir injection option (e.g. a concrete
  * LocalAgentStore instance) wins over sessionStorage; adapters offering both
  * must document that order.
+ *
+ * A static root MUST be a directory-like URI without query or fragment parts;
+ * the per-session segment is appended to its path.
  */
 export type SessionStorage = URI | ((context: AgentSessionContext) => URI | undefined);
 

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import type { AgentSessionContext } from '../src/index.js';
 import {
   resolveSessionStorageDir,
+  type AgentSessionContext,
   type SessionStorage,
-} from '../src/sessions/index.js';
+} from '../src/index.js';
 
 const activeClientToolSink: AgentSessionContext['activeClientToolSink'] = {
   async reportInvocation() {

@@ -20,10 +20,6 @@
     ".": {
       "import": "./dist/src/index.js",
       "types": "./dist/src/index.d.ts"
-    },
-    "./sessions": {
-      "import": "./dist/src/sessions/index.js",
-      "types": "./dist/src/sessions/index.d.ts"
     }
   },
   "scripts": {
